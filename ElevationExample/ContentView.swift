@@ -21,7 +21,7 @@ struct ElevationView: Hashable {
 
 struct ContentView: View {
     
-        private let elevationLight: [ElevationView] =
+        static let elevationLight: [ElevationView] =
         [
             ElevationView(number: 1, firstColor: Color(hex: "#F7F3F8"), secondColor: Color(hex: "#1A0244"), firstOpacity: 0.01, secondOpacity: 0.05, firstRadius: 4, secondRadius: 2, yFirstMove: 1, ySecondMove: 2),
             ElevationView(number: 2, firstColor: Color(hex: "#F7F3F8"), secondColor: Color(hex: "#1A0244"), firstOpacity: 0.2, secondOpacity: 0.1, firstRadius: 8, secondRadius: 4,yFirstMove: 2, ySecondMove: 4),
@@ -89,7 +89,7 @@ struct ContentView: View {
     var body: some View {
         ScrollView {
             VStack {
-                elevation(for: elevationLight, backgroundColor: Color(hex: "#F7F3F8"), numberColor: .black)
+                elevation(for: ContentView.elevationLight, backgroundColor: Color(hex: "#F7F3F8"), numberColor: .black)
                 
                 elevation(for: elevationDark, backgroundColor: Color(hex: "#837C9F"), numberColor: .white)
                 
@@ -97,11 +97,72 @@ struct ContentView: View {
                 
                 elevation(for: topElevationDark, backgroundColor: Color(hex: "#837C9F"), numberColor: .white)
                 
+                Rectangle()
+                    .frame(height: 100)
+                    .frame(maxWidth: .infinity)
+                    .foregroundColor(Color(hex: "#F7F3F8"))
+                    .cornerRadius(8)
+                    .padding(.vertical)
+                    .elevation(side: .bottom, level: .four)
+                    
+                
             }
             .padding()
         }
-        .background(Color(hex: "#EDEAF1"))
+    }
+}
+
+enum ElevationSide {
+    case top
+    case bottom
+}
+
+enum ElevationLevel: Int {
+    case one = 0
+    case two = 1
+    case three = 2
+    case four = 3
+}
+
+struct Elevation: ViewModifier {
+    var side: ElevationSide
+    var level : ElevationLevel
+    
+    private let elevationLight: [ElevationView] =
+    [
+        ElevationView(number: 1, firstColor: Color(hex: "#F7F3F8"), secondColor: Color(hex: "#1A0244"), firstOpacity: 0.01, secondOpacity: 0.05, firstRadius: 4, secondRadius: 2, yFirstMove: 1, ySecondMove: 2),
+        ElevationView(number: 2, firstColor: Color(hex: "#F7F3F8"), secondColor: Color(hex: "#1A0244"), firstOpacity: 0.2, secondOpacity: 0.1, firstRadius: 8, secondRadius: 4,yFirstMove: 2, ySecondMove: 4),
+        ElevationView(number: 3, firstColor: Color(hex: "#F7F3F8"), secondColor: Color(hex: "#1A0244"), firstOpacity: 0.3, secondOpacity: 0.15,firstRadius: 16, secondRadius: 8, yFirstMove: 4, ySecondMove: 8),
+        ElevationView(number: 4, firstColor: Color(hex: "#F7F3F8"), secondColor: Color(hex: "#1A0244"), firstOpacity: 0.4, secondOpacity: 0.2,firstRadius: 32, secondRadius: 16, yFirstMove: 8, ySecondMove: 16)
+    ]
+    
+    private let topElevationLight: [ElevationView] =
+    [
+        ElevationView(number: 1, firstColor: Color(hex: "#F7F3F8"), secondColor: Color(hex: "#1A0244"), firstOpacity: 0.01, secondOpacity: 0.05, firstRadius: 4, secondRadius: 2, yFirstMove: -1, ySecondMove: -2),
+        ElevationView(number: 2, firstColor: Color(hex: "#F7F3F8"), secondColor: Color(hex: "#1A0244"), firstOpacity: 0.2, secondOpacity: 0.1, firstRadius: 8, secondRadius: 4, yFirstMove: -2, ySecondMove: -4),
+        ElevationView(number: 3, firstColor: Color(hex: "#F7F3F8"), secondColor: Color(hex: "#1A0244"), firstOpacity: 0.3, secondOpacity: 0.15, firstRadius: 16, secondRadius: 8, yFirstMove: -4, ySecondMove: -8),
+        ElevationView(number: 4, firstColor: Color(hex: "#F7F3F8"), secondColor: Color(hex: "#1A0244"), firstOpacity: 0.4, secondOpacity: 0.2, firstRadius: 32, secondRadius: 16, yFirstMove: -8, ySecondMove: -16)
+    ]
+
+    func body(content: Content) -> some View {
+        if side == .bottom {
+            let elevation = elevationLight[level.rawValue]
+            content
+                .shadow(color: elevation.firstColor.opacity(elevation.firstOpacity),radius: elevation.firstRadius, x: 0, y: elevation.yFirstMove)
+                .shadow(color: elevation.secondColor.opacity(elevation.secondOpacity),radius: elevation.secondRadius, x: 0, y: elevation.ySecondMove)
+        } else {
+            let elevation = topElevationLight[level.rawValue]
+            content
+                .shadow(color: elevation.firstColor.opacity(elevation.firstOpacity),radius: elevation.firstRadius, x: 0, y: elevation.yFirstMove)
+                .shadow(color: elevation.secondColor.opacity(elevation.secondOpacity),radius: elevation.secondRadius, x: 0, y: elevation.ySecondMove)
+        }
         
+    }
+}
+
+extension View {
+    func elevation(side: ElevationSide, level: ElevationLevel) -> some View {
+        modifier(Elevation(side: side, level: level))
     }
 }
 
