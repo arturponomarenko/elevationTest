@@ -117,16 +117,16 @@ enum ElevationSide {
     case bottom
 }
 
-enum ElevationLevel: Int {
-    case one = 0
-    case two = 1
-    case three = 2
-    case four = 3
+enum ElevationLevel {
+    case one
+    case two
+    case three
+    case four
 }
 
-struct Elevation: ViewModifier {
-    var side: ElevationSide
-    var level : ElevationLevel
+struct ElevationModifier: ViewModifier {
+    let side: ElevationSide
+    let level : ElevationLevel
     
     private let elevationLight: [ElevationView] =
     [
@@ -145,25 +145,85 @@ struct Elevation: ViewModifier {
     ]
 
     func body(content: Content) -> some View {
-        if side == .bottom {
-            let elevation = elevationLight[level.rawValue]
-            content
-                .shadow(color: elevation.firstColor.opacity(elevation.firstOpacity),radius: elevation.firstRadius, x: 0, y: elevation.yFirstMove)
-                .shadow(color: elevation.secondColor.opacity(elevation.secondOpacity),radius: elevation.secondRadius, x: 0, y: elevation.ySecondMove)
-        } else {
-            let elevation = topElevationLight[level.rawValue]
-            content
-                .shadow(color: elevation.firstColor.opacity(elevation.firstOpacity),radius: elevation.firstRadius, x: 0, y: elevation.yFirstMove)
-                .shadow(color: elevation.secondColor.opacity(elevation.secondOpacity),radius: elevation.secondRadius, x: 0, y: elevation.ySecondMove)
-        }
+      let elevationDetails = ElevationDetails(side: side, level: level)
+      content
+        .shadow(elevationDetails.firstShadow)
+        .shadow(elevationDetails.secondShadow)
         
     }
 }
 
-extension View {
-    func elevation(side: ElevationSide, level: ElevationLevel) -> some View {
-        modifier(Elevation(side: side, level: level))
+struct ElevationDetails {
+  let firstShadow: ShadowDetails
+  let secondShadow: ShadowDetails
+  
+  init(side: ElevationSide, level: ElevationLevel) {
+    let firstShadowColor: Color
+    let secondShadowColor: Color
+    
+    let firstShadowRadius: Color
+    let secondShadowRadius: Color
+    
+    let firstShadowYOffset: Color
+    let secondShadowYOffset: Color
+    
+    switch level {
+      case .one:
+        firstShadowColor = //
+        secondShadowColor = //
+        firstShadowRadius = //
+        secondShadowRadius = //
+      case .two:
+        <#code#>
+      case .three:
+        <#code#>
+      case .four:
+        <#code#>
     }
+    
+    switch side {
+      case .top:
+        firstShadowYOffset = //
+        secondShadowYOffset = //
+      case .bottom:
+        <#code#>
+    }
+    
+    firstShadow = ShadowDetails(color: <#T##Color#>, radius: <#T##CGFloat#>, xOffset: <#T##CGFloat#>, yOffset: <#T##CGFloat#>)
+    secondShadow = ShadowDetails(color: <#T##Color#>, radius: <#T##CGFloat#>, xOffset: <#T##CGFloat#>, yOffset: <#T##CGFloat#>)
+  }
+}
+
+struct ShadowDetails: Hashable {
+  let color: Color
+  var radius: CGFloat
+  var xOffset: CGFloat
+  var yOffset: CGFloat
+  
+  init(color: Color, radius: CGFloat, xOffset: CGFloat = 0, yOffset: CGFloat = 0) {
+    self.color = color
+    self.radius = radius
+    self.xOffset = xOffset
+    self.yOffset = yOffset
+  }
+}
+
+extension View {
+  func shadow(_ shadowDetails: ShadowDetails) -> some View {
+    self.shadow(
+      color: shadowDetails.color,
+      radius: shadowDetails.radius,
+      x: shadowDetails.xOffset,
+      y: shadowDetails.yOffset
+    )
+  }
+}
+
+
+extension View {
+  func elevation(side: ElevationSide, level: ElevationLevel) -> some View {
+    modifier(ElevationModifier(side: side, level: level))
+  }
 }
 
 #Preview {
